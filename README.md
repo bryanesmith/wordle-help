@@ -1,17 +1,17 @@
-# wordle-help
+# wordle_help
 CLI tool that helps players decide their next guess while playing Wordle.
 
 ## Usage
 
 Print help:
 
-`wordle-help -h` (or `wordle-help --help`)
+`wordle_help -h` (or `wordle_help --help`)
 
 Provide one or more guesses:
 
-`wordle-help -g "slate"`
+`wordle_help -g "slate"`
 
-`wordle-help -g "slate" -g "[p][r](o)ps" -g "[p][r]i[o]n"`
+`wordle_help -g "slate" -g "[p][r](o)ps" -g "[p][r]i[o]n"`
 
 ### Guess encoding
 
@@ -27,6 +27,16 @@ Examples:
   - `p` and `r` are green in positions 1 and 2
   - `o` is present but not in position 3
   - the second `p` is unmarked, so `p` is excluded elsewhere
+
+## Building
+
+`./build.sh`
+
+Or:
+
+```
+go build -o wordle_help main.go candidates.go regex.go validations.go
+```
 
 ## Running tests
 
