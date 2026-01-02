@@ -11,6 +11,8 @@ import (
 
 var ErrDictOpen = errors.New("failed to open dictionary")
 
+// Candidates reads the given dictionary file and returns all unique, lowercase, five-letter
+// words that match the provided regular expression.
 func Candidates(re *regexp.Regexp, dictPath string) ([]string, error) {
 	f, err := os.Open(dictPath)
 	if err != nil {
@@ -22,6 +24,7 @@ func Candidates(re *regexp.Regexp, dictPath string) ([]string, error) {
 	seen := map[string]struct{}{}
 
 	scanner := bufio.NewScanner(f)
+scan:
 	for scanner.Scan() {
 		w := strings.TrimSpace(scanner.Text())
 		if w == "" {
@@ -31,15 +34,10 @@ func Candidates(re *regexp.Regexp, dictPath string) ([]string, error) {
 		if len([]rune(w)) != 5 {
 			continue
 		}
-		allLetters := true
 		for _, r := range w {
 			if !unicode.IsLetter(r) {
-				allLetters = false
-				break
+				continue scan
 			}
-		}
-		if !allLetters {
-			continue
 		}
 		if !re.MatchString(w) {
 			continue

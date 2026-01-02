@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
-	"regexp"
 	"sort"
 	"strings"
 )
 
+// BuildRegex converts the validated guesses into a single regular expression string.
+//
+// The returned pattern is anchored (starts with '^' and ends with '$') so that it matches
+// only full 5-letter words.
 func BuildRegex(guesses []ParsedGuess) (string, error) {
 	greens := [5]rune{}
 	globalExclude := map[rune]struct{}{}
@@ -29,26 +32,26 @@ func BuildRegex(guesses []ParsedGuess) (string, error) {
 		}
 	}
 
+	// Build the exclusion character class once, since it does not vary by position.
+	ex := make([]string, 0, len(globalExclude))
+	for r := range globalExclude {
+		ex = append(ex, string(r))
+	}
+	sort.Strings(ex)
+	class := strings.Join(ex, "")
+
 	parts := make([]string, 0, 5)
 	for i := 0; i < 5; i++ {
 		if greens[i] != 0 {
-			parts = append(parts, regexp.QuoteMeta(string(greens[i])))
+			parts = append(parts, string(greens[i]))
 			continue
 		}
 
-		excluded := map[rune]struct{}{}
-		for r := range globalExclude {
-			excluded[r] = struct{}{}
+		if class == "" {
+			parts = append(parts, "[a-z]")
+			continue
 		}
 
-		ex := make([]string, 0, len(excluded))
-		for r := range excluded {
-			ex = append(ex, string(r))
-		}
-		sort.Strings(ex)
-
-		class := strings.Join(ex, "")
-		class = regexp.QuoteMeta(class)
 		parts = append(parts, "[^"+class+"]")
 	}
 

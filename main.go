@@ -7,24 +7,19 @@ import (
 	"regexp"
 )
 
-type multiFlag []string
-
-func (m *multiFlag) String() string {
-	return fmt.Sprint([]string(*m))
-}
-
-func (m *multiFlag) Set(v string) error {
-	*m = append(*m, v)
-	return nil
-}
-
 func run(argv []string) int {
 	fs := flag.NewFlagSet("wordle-help", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 
-	var guesses multiFlag
-	fs.Var(&guesses, "g", "A guess, e.g. slate or [p][r](o)ps")
-	fs.Var(&guesses, "guess", "A guess, e.g. slate or [p][r](o)ps")
+	var guesses []string
+	fs.Func("g", "A guess, e.g. slate or [p][r](o)ps", func(v string) error {
+		guesses = append(guesses, v)
+		return nil
+	})
+	fs.Func("guess", "A guess, e.g. slate or [p][r](o)ps", func(v string) error {
+		guesses = append(guesses, v)
+		return nil
+	})
 
 	help := fs.Bool("h", false, "Show help")
 	fs.BoolVar(help, "help", false, "Show help")
@@ -37,7 +32,7 @@ func run(argv []string) int {
 		return 0
 	}
 
-	parsed, err := ValidateGuesses([]string(guesses))
+	parsed, err := ValidateGuesses(guesses)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1

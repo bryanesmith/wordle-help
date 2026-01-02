@@ -97,6 +97,9 @@ func ParseGuess(raw string) (ParsedGuess, error) {
 	return out, nil
 }
 
+// ValidateGuesses parses and validates 1-6 user-provided guess strings.
+//
+// On success, it returns the parsed guesses that can be fed into regex construction.
 func ValidateGuesses(rawGuesses []string) ([]ParsedGuess, error) {
 	if len(rawGuesses) == 0 {
 		return nil, ErrNoGuesses
