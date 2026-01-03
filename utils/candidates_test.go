@@ -28,6 +28,18 @@ func TestCandidates_FiltersAndMatches(t *testing.T) {
 	}
 }
 
+func TestCheckGuess(t *testing.T) {
+	got := CheckGuess("stale", "slate")
+	if got != "[s](t)[a](l)[e]" {
+		t.Fatalf("expected %q, got %q", "[s](t)[a](l)[e]", got)
+	}
+
+	got = CheckGuess("stale", "apple")
+	if got != "st(a)[l][e]" {
+		t.Fatalf("expected %q, got %q", "st(a)[l][e]", got)
+	}
+}
+
 func TestCandidates_DictOpenError(t *testing.T) {
 	re := regexp.MustCompile("^abcde$")
 	_, err := Candidates(re, nil, "/path/does/not/exist")

@@ -35,12 +35,26 @@ Examples:
 Or:
 
 ```
-go build -o bin/wordle_helper ./wordlehelp
+go build -o bin/wordle_help ./wordlehelp
+go build -o bin/wordle_sims ./wordlesims
 ```
 
 ## Running tests
 
 `go test ./...`
+
+## Simulating games
+
+After building, you can simulate one or more games using `bin/wordle_sims`.
+
+Provide exactly one starting word and one or more answers:
+
+```
+./build.sh
+bin/wordle_sims -s slate -a stale -a apple
+```
+
+The tool prints the `bin/wordle_help` commands it runs (without printing their output), then prints a summary table and the average guesses.
 
 ## How results are sorted
 
@@ -65,9 +79,12 @@ The tool prints each candidate guess along with these two values.
 
 - `wordlehelp/`
   - `main.go`: CLI entrypoint for `wordle_help`; parses flags, validates guesses, builds regex, and prints sorted candidates
+- `wordlesims/`
+  - `main.go`: CLI entrypoint for `wordle_sims`; runs multiple simulations by repeatedly calling `bin/wordle_help`
 - `utils/`
   - `validations.go`: Guess parsing and validation logic
   - `regex.go`: Converts validated guesses into a single regular expression
   - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
 - `bin/`
   - `wordle_help`: executable that helps players decide their next guess while playing Wordle
+  - `wordle_sims`: executable that simulates games of Wordle and reports aggregate results
