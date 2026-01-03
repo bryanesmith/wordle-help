@@ -43,21 +43,6 @@ go build -o bin/wordle_sims ./wordlesims
 
 `go test ./...`
 
-## Simulating games
-
-After building, you can simulate one or more games using `bin/wordle_sims`.
-
-Provide exactly one starting word and optionally one or more answers:
-
-```
-./build.sh
-bin/wordle_sims -s slate -a stale -a apple
-```
-
-If you omit all `-a/--answer` flags, the tool will randomly sample 50 answers from `/usr/share/dict/words`.
-
-The tool prints the `bin/wordle_help` commands it runs (without printing their output), then prints a summary table and the average guesses.
-
 ## How results are sorted
 
 Instead of printing candidates alphabetically, `wordle_help` prints them in ascending order of `E_remaining` (the estimated number of remaining candidates after making that guess).
@@ -76,6 +61,38 @@ E_eliminated(g) = N - E_remaining(g)
 ```
 
 The tool prints each candidate guess along with these two values.
+
+## Simulating games
+
+After building, you can simulate one or more games using `bin/wordle_sims`. The tool will run `bin/wordle_help` multiple times to simulate the game, and gather statistics about the number of guesses it takes to solve each game if it uses the suggested guess at the top of the list.
+
+Provide exactly one starting word and optionally one or more answers:
+
+```
+./build.sh
+
+# Simulate 50 games with slate as the starting word and random answers:
+bin/wordle_sims -s slate 
+
+# Simulate 2 games with slate as the starting word and stale and apple as the answers:
+bin/wordle_sims -s slate -a stale -a apple 
+```
+
+If you omit all `-a/--answer` flags, the tool will randomly sample 50 answers from `/usr/share/dict/words`.
+
+The tool prints the `bin/wordle_help` commands it runs (without printing their output), then prints a summary table of the game results along with the average number of guesses it took to solve each game. E.g.,:
+
+```
+| Starting Word | Answer | Total Guesses |
+| --- | --- | --- |
+| slate | spook | 3 |
+| slate | natch | 4 |
+| slate | torso | 4 |
+...
+| slate | aface | 5 |
+
+Average guesses: 4.27
+```
 
 ## Project layout
 
