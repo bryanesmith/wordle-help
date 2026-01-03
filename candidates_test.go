@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"testing"
 )
 
@@ -39,7 +40,7 @@ func TestCandidates_RequiresYellowLetters(t *testing.T) {
 	dir := t.TempDir()
 	dict := filepath.Join(dir, "words")
 
-	contents := "syrup\nswathe\nswathh\n"
+	contents := "syrup\nspore\nsitar\n"
 	if err := os.WriteFile(dict, []byte(contents), 0o644); err != nil {
 		t.Fatalf("write dict: %v", err)
 	}
@@ -60,8 +61,8 @@ func TestCandidates_RequiresYellowLetters(t *testing.T) {
 		t.Fatalf("unexpected err: %v", err)
 	}
 
-	if len(cands) != 1 || cands[0] != "swathh" {
-		t.Fatalf("expected [swathh], got %v", cands)
+	if len(cands) != 1 || cands[0] != "sitar" {
+		t.Fatalf("expected [sitar], got %v", cands)
 	}
 }
 
@@ -104,5 +105,52 @@ func TestIsValidGuessWord(t *testing.T) {
 	}
 	if isValidGuessWord("abcde!") != false {
 		t.Fatalf("expected abcde! to be invalid")
+	}
+}
+
+func TestSortCandidates_MatchesManualScoring(t *testing.T) {
+	candidates := []string{"cigar", "rebut", "sissy", "humph"}
+
+	manual := make([]RatedGuess, 0, len(candidates))
+	N := len(candidates)
+	for _, g := range candidates {
+		bucketCounts := map[string]int{}
+		for _, a := range candidates {
+			p := wordleFeedbackPattern(g, a)
+			bucketCounts[p]++
+		}
+
+		sumSquares := 0
+		for _, c := range bucketCounts {
+			sumSquares += c * c
+		}
+
+		eRemaining := float64(sumSquares) / float64(N)
+		eEliminated := float64(N) - eRemaining
+		manual = append(manual, RatedGuess{Guess: g, ERemaining: eRemaining, EEliminated: eEliminated})
+	}
+
+	sort.Slice(manual, func(i, j int) bool {
+		if manual[i].ERemaining == manual[j].ERemaining {
+			return manual[i].Guess < manual[j].Guess
+		}
+		return manual[i].ERemaining < manual[j].ERemaining
+	})
+
+	got := SortCandidates(candidates)
+	if len(got) != len(manual) {
+		t.Fatalf("expected %d results, got %d", len(manual), len(got))
+	}
+
+	for i := range manual {
+		if got[i].Guess != manual[i].Guess {
+			t.Fatalf("at %d expected guess %q, got %q", i, manual[i].Guess, got[i].Guess)
+		}
+		if got[i].ERemaining != manual[i].ERemaining {
+			t.Fatalf("at %d expected E_remaining %v, got %v", i, manual[i].ERemaining, got[i].ERemaining)
+		}
+		if got[i].EEliminated != manual[i].EEliminated {
+			t.Fatalf("at %d expected E_eliminated %v, got %v", i, manual[i].EEliminated, got[i].EEliminated)
+		}
 	}
 }

@@ -5,11 +5,18 @@ import (
 	"errors"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 )
 
 var ErrDictOpen = errors.New("failed to open dictionary")
+
+type RatedGuess struct {
+	Guess       string
+	ERemaining  float64
+	EEliminated float64
+}
 
 func buildYellowConstraints(guesses []ParsedGuess) (map[rune]struct{}, [5]map[rune]struct{}) {
 	requiredYellow := map[rune]struct{}{}
@@ -103,4 +110,69 @@ scan:
 	}
 
 	return out, nil
+}
+
+func wordleFeedbackPattern(guess string, answer string) string {
+	g := []rune(guess)
+	a := []rune(answer)
+
+	pattern := make([]byte, 5)
+	remaining := map[rune]int{}
+
+	for i := 0; i < 5; i++ {
+		if g[i] == a[i] {
+			pattern[i] = '2'
+			continue
+		}
+		remaining[a[i]]++
+	}
+
+	for i := 0; i < 5; i++ {
+		if pattern[i] == '2' {
+			continue
+		}
+		if remaining[g[i]] > 0 {
+			pattern[i] = '1'
+			remaining[g[i]]--
+			continue
+		}
+		pattern[i] = '0'
+	}
+
+	return string(pattern)
+}
+
+func SortCandidates(candidates []string) []RatedGuess {
+	if len(candidates) == 0 {
+		return nil
+	}
+
+	N := len(candidates)
+	rated := make([]RatedGuess, 0, N)
+
+	for _, g := range candidates {
+		bucketCounts := map[string]int{}
+		for _, a := range candidates {
+			p := wordleFeedbackPattern(g, a)
+			bucketCounts[p]++
+		}
+
+		sumSquares := 0
+		for _, c := range bucketCounts {
+			sumSquares += c * c
+		}
+
+		eRemaining := float64(sumSquares) / float64(N)
+		eEliminated := float64(N) - eRemaining
+		rated = append(rated, RatedGuess{Guess: g, ERemaining: eRemaining, EEliminated: eEliminated})
+	}
+
+	sort.Slice(rated, func(i, j int) bool {
+		if rated[i].ERemaining == rated[j].ERemaining {
+			return rated[i].Guess < rated[j].Guess
+		}
+		return rated[i].ERemaining < rated[j].ERemaining
+	})
+
+	return rated
 }
