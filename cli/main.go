@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+
+	"github.com/bryanesmith/wordle-help/utils"
 )
 
 func run(argv []string) int {
@@ -32,13 +34,13 @@ func run(argv []string) int {
 		return 0
 	}
 
-	parsed, err := ValidateGuesses(guesses)
+	parsed, err := utils.ValidateGuesses(guesses)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 
-	pattern, err := BuildRegex(parsed)
+	pattern, err := utils.BuildRegex(parsed)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
@@ -50,13 +52,13 @@ func run(argv []string) int {
 		return 1
 	}
 
-	cands, err := Candidates(re, parsed, "/usr/share/dict/words")
+	cands, err := utils.Candidates(re, parsed, "/usr/share/dict/words")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 
-	rated := SortCandidates(cands)
+	rated := utils.SortCandidates(cands)
 	for _, r := range rated {
 		fmt.Fprintf(os.Stdout, "%-10s (E_remaining = %.2f, E_eliminated = %.2f)\n", r.Guess, r.ERemaining, r.EEliminated)
 	}

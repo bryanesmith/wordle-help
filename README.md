@@ -35,7 +35,7 @@ Examples:
 Or:
 
 ```
-go build -o wordle_help main.go candidates.go regex.go validations.go
+go build -o bin/wordle_helper ./cli
 ```
 
 ## Running tests
@@ -63,17 +63,11 @@ The tool prints each candidate guess along with these two values.
 
 ## Project layout
 
-- `main.go`
-  - Parses flags (`-g/--guess`, `-h/--help`)
-  - Validates guesses
-  - Builds a regular expression
-  - Loads candidate words from `/usr/share/dict/words` and prints matches
-- `validations.go`
-  - Guess parsing and validation logic
-  - Unit tests in `validations_test.go`
-- `regex.go`
-  - Converts validated guesses into a single regular expression
-  - Unit tests in `regex_test.go`
-- `candidates.go`
-  - Reads a dictionary file and returns all 5-letter candidates matching a regex
-  - Unit tests in `candidates_test.go`
+- `cli/`
+  - CLI entrypoint (`main.go`)
+- `utils/`
+  - Guess parsing and validation logic (+ tests)
+  - Regex construction (+ tests)
+  - Candidate loading and sorting (+ tests)
+- `bin/`
+  - Build output directory (ignored by git)
