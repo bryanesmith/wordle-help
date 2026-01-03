@@ -112,6 +112,8 @@ scan:
 	return out, nil
 }
 
+// wordleFeedbackPattern returns the Wordle feedback pattern you would observe if you guessed
+// `guess` when the true answer is `answer`, including duplicate-letter rules.
 func wordleFeedbackPattern(guess string, answer string) string {
 	g := []rune(guess)
 	a := []rune(answer)
@@ -119,6 +121,7 @@ func wordleFeedbackPattern(guess string, answer string) string {
 	pattern := make([]byte, 5)
 	remaining := map[rune]int{}
 
+	// First pass: mark greens and count remaining (unmatched) letters in the answer.
 	for i := 0; i < 5; i++ {
 		if g[i] == a[i] {
 			pattern[i] = '2'
@@ -127,6 +130,8 @@ func wordleFeedbackPattern(guess string, answer string) string {
 		remaining[a[i]]++
 	}
 
+	// Second pass: for non-green positions, mark yellow only if there is remaining supply
+	// of that letter in the answer; otherwise mark gray.
 	for i := 0; i < 5; i++ {
 		if pattern[i] == '2' {
 			continue
