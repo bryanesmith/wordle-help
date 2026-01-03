@@ -56,8 +56,9 @@ func run(argv []string) int {
 		return 1
 	}
 
-	for _, w := range cands {
-		fmt.Fprintln(os.Stdout, w)
+	rated := SortCandidates(cands)
+	for _, r := range rated {
+		fmt.Fprintf(os.Stdout, "%-10s (E_remaining = %.2f, E_eliminated = %.2f)\n", r.Guess, r.ERemaining, r.EEliminated)
 	}
 
 	return 0

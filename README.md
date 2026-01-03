@@ -42,6 +42,25 @@ go build -o wordle_help main.go candidates.go regex.go validations.go
 
 `go test ./...`
 
+## How results are sorted
+
+Instead of printing candidates alphabetically, `wordle_help` prints them in ascending order of `E_remaining` (the estimated number of remaining candidates after making that guess).
+
+Let:
+
+- `C` be the current set of remaining candidate answers (size `N`)
+- `g` be a potential guess
+- `f(g, a)` be the 5-tile Wordle feedback pattern (gray/yellow/green, including duplicate-letter rules) you would see if the true answer were `a` and you guessed `g`
+
+For a fixed guess `g`, the mapping `a -> f(g, a)` partitions `C` into buckets by feedback pattern. If bucket `p` has size `n_p`, then:
+
+```
+E_remaining(g) = (1/N) * Σ_p n_p^2
+E_eliminated(g) = N - E_remaining(g)
+```
+
+The tool prints each candidate guess along with these two values.
+
 ## Project layout
 
 - `main.go`
