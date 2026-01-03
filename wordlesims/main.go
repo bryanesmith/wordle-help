@@ -19,6 +19,7 @@ type simResult struct {
 	StartingWord string
 	Answer       string
 	TotalGuesses int
+	Succeeded    bool
 }
 
 func isValidDictWord(word string) bool {
@@ -154,12 +155,14 @@ func run(argv []string) int {
 
 	results := make([]simResult, 0, len(answers))
 	totalGuesses := 0
+	successfulSims := 0
 
 	for _, ans := range answers {
 		answer := strings.ToLower(ans)
 		currentGuess := strings.ToLower(*starting)
 		guessEncodings := []string{}
 		guessCount := 1
+		succeeded := true
 
 		for currentGuess != answer {
 			result := utils.CheckGuess(currentGuess, answer)
@@ -167,6 +170,11 @@ func run(argv []string) int {
 
 			nextGuess, err := runWordleHelp(guessEncodings)
 			if err != nil {
+				if err.Error() == "wordle_help produced no output" {
+					fmt.Fprintf(os.Stderr, "Skipping simulation for answer %s: %s\n", answer, err.Error())
+					succeeded = false
+					break
+				}
 				fmt.Fprintln(os.Stderr, err.Error())
 				return 1
 			}
@@ -176,18 +184,33 @@ func run(argv []string) int {
 			currentGuess = nextGuess
 		}
 
-		results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: guessCount})
+		if !succeeded {
+			results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: 0, Succeeded: false})
+			continue
+		}
+
+		results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: guessCount, Succeeded: true})
 		totalGuesses += guessCount
+		successfulSims++
 	}
 
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, "| Starting Word | Answer | Total Guesses |")
 	fmt.Fprintln(os.Stdout, "| --- | --- | --- |")
 	for _, r := range results {
+		if !r.Succeeded {
+			fmt.Fprintf(os.Stdout, "| %s | %s | - |\n", r.StartingWord, r.Answer)
+			continue
+		}
 		fmt.Fprintf(os.Stdout, "| %s | %s | %d |\n", r.StartingWord, r.Answer, r.TotalGuesses)
 	}
 
-	avg := float64(totalGuesses) / float64(len(results))
+	if successfulSims == 0 {
+		fmt.Fprintln(os.Stdout, "\nAverage guesses: -")
+		return 0
+	}
+
+	avg := float64(totalGuesses) / float64(successfulSims)
 	fmt.Fprintf(os.Stdout, "\nAverage guesses: %.2f\n", avg)
 
 	return 0
