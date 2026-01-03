@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -15,11 +17,15 @@ import (
 	"github.com/bryanesmith/wordle-help/utils"
 )
 
+var ErrWordleHelpNoOutput = errors.New("wordle_help produced no output")
+var ErrWordleHelpTooManyGuesses = errors.New("no more than six -g/--guess values may be provided")
+
 type simResult struct {
-	StartingWord string
-	Answer       string
-	TotalGuesses int
-	Succeeded    bool
+	StartingWord        string
+	Answer              string
+	TotalGuesses        int
+	TotalGuessesDisplay string
+	Succeeded           bool
 }
 
 func isValidDictWord(word string) bool {
@@ -87,15 +93,20 @@ func runWordleHelp(guesses []string) (string, error) {
 	fmt.Fprintln(os.Stdout, strings.Join(cmdStr, " "))
 
 	cmd := exec.Command(wordleHelpPath(), args...)
-	cmd.Stderr = os.Stderr
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
+		msg := strings.TrimSpace(stderr.String())
+		if strings.Contains(msg, ErrWordleHelpTooManyGuesses.Error()) {
+			return "", ErrWordleHelpTooManyGuesses
+		}
 		return "", err
 	}
 
 	line := strings.TrimSpace(string(out))
 	if line == "" {
-		return "", fmt.Errorf("wordle_help produced no output")
+		return "", ErrWordleHelpNoOutput
 	}
 
 	firstLineEnd := strings.IndexByte(line, '\n')
@@ -163,6 +174,7 @@ func run(argv []string) int {
 		guessEncodings := []string{}
 		guessCount := 1
 		succeeded := true
+		failedDisplay := ""
 
 		for currentGuess != answer {
 			result := utils.CheckGuess(currentGuess, answer)
@@ -170,9 +182,16 @@ func run(argv []string) int {
 
 			nextGuess, err := runWordleHelp(guessEncodings)
 			if err != nil {
-				if err.Error() == "wordle_help produced no output" {
+				if errors.Is(err, ErrWordleHelpNoOutput) {
 					fmt.Fprintf(os.Stderr, "Skipping simulation for answer %s: %s\n", answer, err.Error())
 					succeeded = false
+					failedDisplay = "-"
+					break
+				}
+				if errors.Is(err, ErrWordleHelpTooManyGuesses) {
+					fmt.Fprintf(os.Stderr, "Skipping simulation for answer %s: %s\n", answer, err.Error())
+					succeeded = false
+					failedDisplay = "fail"
 					break
 				}
 				fmt.Fprintln(os.Stderr, err.Error())
@@ -185,11 +204,11 @@ func run(argv []string) int {
 		}
 
 		if !succeeded {
-			results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: 0, Succeeded: false})
+			results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: 0, TotalGuessesDisplay: failedDisplay, Succeeded: false})
 			continue
 		}
 
-		results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: guessCount, Succeeded: true})
+		results = append(results, simResult{StartingWord: strings.ToLower(*starting), Answer: answer, TotalGuesses: guessCount, TotalGuessesDisplay: fmt.Sprintf("%d", guessCount), Succeeded: true})
 		totalGuesses += guessCount
 		successfulSims++
 	}
@@ -199,10 +218,10 @@ func run(argv []string) int {
 	fmt.Fprintln(os.Stdout, "| --- | --- | --- |")
 	for _, r := range results {
 		if !r.Succeeded {
-			fmt.Fprintf(os.Stdout, "| %s | %s | - |\n", r.StartingWord, r.Answer)
+			fmt.Fprintf(os.Stdout, "| %s | %s | %s |\n", r.StartingWord, r.Answer, r.TotalGuessesDisplay)
 			continue
 		}
-		fmt.Fprintf(os.Stdout, "| %s | %s | %d |\n", r.StartingWord, r.Answer, r.TotalGuesses)
+		fmt.Fprintf(os.Stdout, "| %s | %s | %s |\n", r.StartingWord, r.Answer, r.TotalGuessesDisplay)
 	}
 
 	if successfulSims == 0 {
