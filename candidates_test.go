@@ -64,3 +64,45 @@ func TestCandidates_RequiresYellowLetters(t *testing.T) {
 		t.Fatalf("expected [swathh], got %v", cands)
 	}
 }
+
+func TestBuildYellowConstraints(t *testing.T) {
+	g1, err := ParseGuess("ab(c)de")
+	if err != nil {
+		t.Fatalf("parse guess: %v", err)
+	}
+	g2, err := ParseGuess("(a)bcde")
+	if err != nil {
+		t.Fatalf("parse guess: %v", err)
+	}
+
+	req, forbid := buildYellowConstraints([]ParsedGuess{g1, g2})
+
+	if _, ok := req['a']; !ok {
+		t.Fatalf("expected required yellow to include 'a'")
+	}
+	if _, ok := req['c']; !ok {
+		t.Fatalf("expected required yellow to include 'c'")
+	}
+
+	if _, ok := forbid[0]['a']; !ok {
+		t.Fatalf("expected forbidden pos 1 to include 'a'")
+	}
+	if _, ok := forbid[2]['c']; !ok {
+		t.Fatalf("expected forbidden pos 3 to include 'c'")
+	}
+}
+
+func TestIsValidGuessWord(t *testing.T) {
+	if isValidGuessWord("abcde") != true {
+		t.Fatalf("expected abcde to be valid")
+	}
+	if isValidGuessWord("Abcde") != true {
+		t.Fatalf("expected Abcde to be valid")
+	}
+	if isValidGuessWord("abcd") != false {
+		t.Fatalf("expected abcd to be invalid")
+	}
+	if isValidGuessWord("abcde!") != false {
+		t.Fatalf("expected abcde! to be invalid")
+	}
+}
