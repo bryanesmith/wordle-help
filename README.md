@@ -35,7 +35,7 @@ Examples:
 Or:
 
 ```
-go build -o bin/wordle_helper ./cli
+go build -o bin/wordle_helper ./wordlehelp
 ```
 
 ## Running tests
@@ -63,7 +63,7 @@ The tool prints each candidate guess along with these two values.
 
 ## Project layout
 
-- `cli/`
+- `wordlehelp/`
   - CLI entrypoint (`main.go`)
 - `utils/`
   - Guess parsing and validation logic (+ tests)
