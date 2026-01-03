@@ -50,7 +50,7 @@ func run(argv []string) int {
 		return 1
 	}
 
-	cands, err := Candidates(re, "/usr/share/dict/words")
+	cands, err := Candidates(re, parsed, "/usr/share/dict/words")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
