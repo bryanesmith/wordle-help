@@ -1,6 +1,8 @@
-package main
+package utils
 
-import "testing"
+import (
+	"testing"
+)
 
 func mustParse(t *testing.T, raw string) ParsedGuess {
 	t.Helper()
