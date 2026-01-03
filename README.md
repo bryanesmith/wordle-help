@@ -47,12 +47,14 @@ go build -o bin/wordle_sims ./wordlesims
 
 After building, you can simulate one or more games using `bin/wordle_sims`.
 
-Provide exactly one starting word and one or more answers:
+Provide exactly one starting word and optionally one or more answers:
 
 ```
 ./build.sh
 bin/wordle_sims -s slate -a stale -a apple
 ```
+
+If you omit all `-a/--answer` flags, the tool will randomly sample 50 answers from `/usr/share/dict/words`.
 
 The tool prints the `bin/wordle_help` commands it runs (without printing their output), then prints a summary table and the average guesses.
 

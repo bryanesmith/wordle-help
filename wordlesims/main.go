@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
+	"unicode"
 
 	"github.com/bryanesmith/wordle-help/utils"
 )
@@ -15,6 +19,57 @@ type simResult struct {
 	StartingWord string
 	Answer       string
 	TotalGuesses int
+}
+
+func isValidDictWord(word string) bool {
+	if len([]rune(word)) != 5 {
+		return false
+	}
+	for _, r := range word {
+		if !unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func pickRandomAnswers(dictPath string, n int) ([]string, error) {
+	f, err := os.Open(dictPath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	words := []string{}
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		w := strings.TrimSpace(scanner.Text())
+		if w == "" {
+			continue
+		}
+		w = strings.ToLower(w)
+		if !isValidDictWord(w) {
+			continue
+		}
+		words = append(words, w)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	if len(words) == 0 {
+		return nil, fmt.Errorf("no valid words found in %s", dictPath)
+	}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(words), func(i, j int) {
+		words[i], words[j] = words[j], words[i]
+	})
+
+	if n > len(words) {
+		n = len(words)
+	}
+
+	return words[:n], nil
 }
 
 func wordleHelpPath() string {
@@ -83,13 +138,18 @@ func run(argv []string) int {
 		return 0
 	}
 
-	if len(answers) == 0 {
-		fmt.Fprintln(os.Stderr, "at least one -a/--answer must be provided")
-		return 1
-	}
 	if *starting == "" {
 		fmt.Fprintln(os.Stderr, "exactly one -s/--starting must be provided")
 		return 1
+	}
+
+	if len(answers) == 0 {
+		picked, err := pickRandomAnswers("/usr/share/dict/words", 50)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			return 1
+		}
+		answers = picked
 	}
 
 	results := make([]simResult, 0, len(answers))
