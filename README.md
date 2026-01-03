@@ -64,10 +64,10 @@ The tool prints each candidate guess along with these two values.
 ## Project layout
 
 - `wordlehelp/`
-  - CLI entrypoint (`main.go`)
+  - `main.go`: CLI entrypoint for `wordle_help`; parses flags, validates guesses, builds regex, and prints sorted candidates
 - `utils/`
-  - Guess parsing and validation logic (+ tests)
-  - Regex construction (+ tests)
-  - Candidate loading and sorting (+ tests)
+  - `validations.go`: Guess parsing and validation logic
+  - `regex.go`: Converts validated guesses into a single regular expression
+  - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
 - `bin/`
-  - Build output directory (ignored by git)
+  - `wordle_help`: executable that helps players decide their next guess while playing Wordle
