@@ -215,7 +215,7 @@ func run(argv []string) int {
 
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, "| Starting Word | Answer | Total Guesses |")
-	fmt.Fprintln(os.Stdout, "| --- | --- | --- |")
+	fmt.Fprintln(os.Stdout, "| ------------- | ------ | ------------- |")
 	for _, r := range results {
 		if !r.Succeeded {
 			fmt.Fprintf(os.Stdout, "| %s | %s | %s |\n", r.StartingWord, r.Answer, r.TotalGuessesDisplay)
@@ -233,13 +233,13 @@ func run(argv []string) int {
 		fmt.Fprintln(os.Stdout, "\nAverage guesses: -")
 		fmt.Fprintln(os.Stdout)
 		fmt.Fprintln(os.Stdout, "| Guesses | Count |")
-		fmt.Fprintln(os.Stdout, "| --------- | ----- |")
+		fmt.Fprintln(os.Stdout, "| ------- | ----- |")
 		for i := 1; i <= 6; i++ {
 			k := fmt.Sprintf("%d", i)
-			fmt.Fprintf(os.Stdout, "| %d | %d |\n", i, dist[k])
+			fmt.Fprintf(os.Stdout, "| %d       | %d |\n", i, dist[k])
 		}
-		fmt.Fprintf(os.Stdout, "| - | %d |\n", dist["-"])
-		fmt.Fprintf(os.Stdout, "| fails | %d |\n", dist["fail"])
+		fmt.Fprintf(os.Stdout, "| -       | %d |\n", dist["-"])
+		fmt.Fprintf(os.Stdout, "| fails   | %d |\n", dist["fail"])
 		return 0
 	}
 
@@ -248,13 +248,13 @@ func run(argv []string) int {
 
 	fmt.Fprintln(os.Stdout)
 	fmt.Fprintln(os.Stdout, "| Guesses | Count |")
-	fmt.Fprintln(os.Stdout, "| --------- | ----- |")
+	fmt.Fprintln(os.Stdout, "| ------- | ----- |")
 	for i := 1; i <= 6; i++ {
 		k := fmt.Sprintf("%d", i)
-		fmt.Fprintf(os.Stdout, "| %d | %d |\n", i, dist[k])
+		fmt.Fprintf(os.Stdout, "| %d       | %d |\n", i, dist[k])
 	}
-	fmt.Fprintf(os.Stdout, "| - | %d |\n", dist["-"])
-	fmt.Fprintf(os.Stdout, "| fails | %d |\n", dist["fail"])
+	fmt.Fprintf(os.Stdout, "| -       | %d |\n", dist["-"])
+	fmt.Fprintf(os.Stdout, "| fails   | %d |\n", dist["fail"])
 
 	return 0
 }

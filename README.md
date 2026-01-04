@@ -84,14 +84,23 @@ The tool prints the `bin/wordle_help` commands it runs (without printing their o
 
 ```
 | Starting Word | Answer | Total Guesses |
-| --- | --- | --- |
-| slate | spook | 3 |
-| slate | natch | 4 |
-| slate | torso | 4 |
+| ------------- | ------ | ------------- |
+| slate | fifie | 4 |
+| slate | smith | 3 |
+| slate | blare | 6 |
 ...
-| slate | aface | 5 |
+| slate | unfur | 4 |
 
-Average guesses: 4.27
+Average guesses: 4.07
+
+| Guesses | Count |
+| ------- | ----- |
+| 1       | 0 |
+| 2       | 1 |
+| 3       | 8 |
+| 4       | 23 |
+| 5       | 9 |
+| 6       | 2 |
 ```
 
 ## Project layout
