@@ -35,7 +35,8 @@ Examples:
 Or:
 
 ```
-go build -o bin/wordle_helper ./wordlehelp
+go build -o bin/wordle_help ./wordlehelp
+go build -o bin/wordle_sims ./wordlesims
 ```
 
 ## Running tests
@@ -61,13 +62,57 @@ E_eliminated(g) = N - E_remaining(g)
 
 The tool prints each candidate guess along with these two values.
 
+## Simulating games
+
+After building, you can simulate one or more games using `bin/wordle_sims`. The tool will run `bin/wordle_help` multiple times to simulate the game, and gather statistics about the number of guesses it takes to solve each game if it uses the suggested guess at the top of the list.
+
+Provide exactly one starting word and optionally one or more answers:
+
+```
+./build.sh
+
+# Simulate 50 games with slate as the starting word and random answers:
+bin/wordle_sims -s slate 
+
+# Simulate 2 games with slate as the starting word and stale and apple as the answers:
+bin/wordle_sims -s slate -a stale -a apple 
+```
+
+If you omit all `-a/--answer` flags, the tool will randomly sample 50 answers from `/usr/share/dict/words`.
+
+The tool prints the `bin/wordle_help` commands it runs (without printing their output), then prints a summary table of the game results along with the average number of guesses it took to solve each game. E.g.,:
+
+```
+| Starting Word | Answer | Total Guesses |
+| ------------- | ------ | ------------- |
+| slate | fifie | 4 |
+| slate | smith | 3 |
+| slate | blare | 6 |
+...
+| slate | unfur | 4 |
+
+Average guesses: 4.07
+
+| Guesses | Count |
+| ------- | ----- |
+| 1       | 0 |
+| 2       | 1 |
+| 3       | 8 |
+| 4       | 23 |
+| 5       | 9 |
+| 6       | 2 |
+```
+
 ## Project layout
 
 - `wordlehelp/`
   - `main.go`: CLI entrypoint for `wordle_help`; parses flags, validates guesses, builds regex, and prints sorted candidates
+- `wordlesims/`
+  - `main.go`: CLI entrypoint for `wordle_sims`; runs multiple simulations by repeatedly calling `bin/wordle_help`
 - `utils/`
   - `validations.go`: Guess parsing and validation logic
   - `regex.go`: Converts validated guesses into a single regular expression
   - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
 - `bin/`
   - `wordle_help`: executable that helps players decide their next guess while playing Wordle
+  - `wordle_sims`: executable that simulates games of Wordle and reports aggregate results

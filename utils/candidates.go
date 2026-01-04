@@ -147,6 +147,33 @@ func wordleFeedbackPattern(guess string, answer string) string {
 	return string(pattern)
 }
 
+func CheckGuess(guess string, answer string) string {
+	guess = strings.ToLower(guess)
+	answer = strings.ToLower(answer)
+
+	pattern := wordleFeedbackPattern(guess, answer)
+	g := []rune(guess)
+	p := []byte(pattern)
+
+	var b strings.Builder
+	for i := 0; i < 5; i++ {
+		switch p[i] {
+		case '2':
+			b.WriteByte('[')
+			b.WriteRune(g[i])
+			b.WriteByte(']')
+		case '1':
+			b.WriteByte('(')
+			b.WriteRune(g[i])
+			b.WriteByte(')')
+		default:
+			b.WriteRune(g[i])
+		}
+	}
+
+	return b.String()
+}
+
 func SortCandidates(candidates []string) []RatedGuess {
 	if len(candidates) == 0 {
 		return nil
