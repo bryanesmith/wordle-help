@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -25,8 +26,22 @@ func TestBuildRegex_Example(t *testing.T) {
 		t.Fatalf("unexpected err: %v", err)
 	}
 
-	expected := "^pr[^aeilnpst]o[^aeilnpst]$"
+	expected := "^pr[^aeilnost]o[^aeilnst]$"
 	if pattern != expected {
 		t.Fatalf("expected %q, got %q", expected, pattern)
+	}
+}
+
+func TestBuildRegex_DuplicateLetterYellowAndGray(t *testing.T) {
+	guess := mustParse(t, "(a)bcad")
+
+	pattern, err := BuildRegex([]ParsedGuess{guess})
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+
+	re := regexp.MustCompile(pattern)
+	if !re.MatchString("eaaee") {
+		t.Fatalf("expected regex %q to match %q", pattern, "eaaee")
 	}
 }

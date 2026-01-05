@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -75,6 +76,48 @@ func TestCandidates_RequiresYellowLetters(t *testing.T) {
 
 	if len(cands) != 1 || cands[0] != "sitar" {
 		t.Fatalf("expected [sitar], got %v", cands)
+	}
+}
+
+func TestCandidates_DuplicateLetterYellowAndGray(t *testing.T) {
+	dir := t.TempDir()
+	dict := filepath.Join(dir, "words")
+
+	contents := strings.Join([]string{
+		"citua",
+		"citra",
+		"tacit",
+		"uuuuu",
+	}, "\n") + "\n"
+	if err := os.WriteFile(dict, []byte(contents), 0o644); err != nil {
+		t.Fatalf("write dict: %v", err)
+	}
+
+	guess, err := ParseGuess("(t)(a)ra(i)")
+	if err != nil {
+		t.Fatalf("parse guess: %v", err)
+	}
+
+	pattern, err := BuildRegex([]ParsedGuess{guess})
+	if err != nil {
+		t.Fatalf("build regex: %v", err)
+	}
+	re := regexp.MustCompile(pattern)
+
+	cands, err := Candidates(re, []ParsedGuess{guess}, dict)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+
+	found := false
+	for _, c := range cands {
+		if c == "citua" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected candidates to include citua, got %v", cands)
 	}
 }
 
