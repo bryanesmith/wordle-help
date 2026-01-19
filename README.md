@@ -30,18 +30,15 @@ Examples:
 
 ## Building
 
-`./build.sh`
-
-Or:
-
-```
-go build -o bin/wordle_help ./wordlehelp
-go build -o bin/wordle_sims ./wordlesims
-```
+`make build`
 
 ## Running tests
 
-`go test ./...`
+`make test`
+
+## Cleaning
+
+`make clean`
 
 ## How results are sorted
 
@@ -69,7 +66,7 @@ After building, you can simulate one or more games using `bin/wordle_sims`. The 
 Provide exactly one starting word and optionally one or more answers:
 
 ```
-./build.sh
+make build
 
 # Simulate 50 games with slate as the starting word and random answers:
 bin/wordle_sims -s slate 
@@ -109,10 +106,9 @@ Average guesses: 4.07
   - `main.go`: CLI entrypoint for `wordle_help`; parses flags, validates guesses, builds regex, and prints sorted candidates
 - `wordlesims/`
   - `main.go`: CLI entrypoint for `wordle_sims`; runs multiple simulations by repeatedly calling `bin/wordle_help`
-- `utils/`
-  - `validations.go`: Guess parsing and validation logic
-  - `regex.go`: Converts validated guesses into a single regular expression
-  - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
+- `go-sdk/`
+  - `recommendations/`: SDK entrypoint for recommendations (`go-sdk/recommendations.NextGuessRecommendations`)
+  - `utils/`: Candidate filtering/scoring logic, plus guess parsing/validation and regex construction utilities
 - `bin/`
   - `wordle_help`: executable that helps players decide their next guess while playing Wordle
   - `wordle_sims`: executable that simulates games of Wordle and reports aggregate results

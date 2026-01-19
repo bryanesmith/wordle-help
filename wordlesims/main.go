@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/bryanesmith/wordle-help/utils"
+	sdkutils "github.com/bryanesmith/wordle-help/go-sdk/utils"
 )
 
 var ErrWordleHelpNoOutput = errors.New("wordle_help produced no output")
@@ -177,7 +177,7 @@ func run(argv []string) int {
 		failedDisplay := ""
 
 		for currentGuess != answer {
-			result := utils.CheckGuess(currentGuess, answer)
+			result := sdkutils.CheckGuess(currentGuess, answer)
 			guessEncodings = append(guessEncodings, result)
 
 			nextGuess, err := runWordleHelp(guessEncodings)
