@@ -112,6 +112,7 @@ Average guesses: 4.07
 - `utils/`
   - `validations.go`: Guess parsing and validation logic
   - `regex.go`: Converts validated guesses into a single regular expression
+  - `recommendations.go`: End-to-end helper for recommending the next guess from raw guesses (`utils.NextGuessRecommendations`)
   - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
 - `bin/`
   - `wordle_help`: executable that helps players decide their next guess while playing Wordle
