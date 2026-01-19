@@ -1,9 +1,11 @@
-package utils
+package recommendations
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	sdkutils "github.com/bryanesmith/wordle-help/go-sdk/utils"
 )
 
 func TestRecommendNextGuess_EndToEnd(t *testing.T) {
@@ -32,7 +34,7 @@ func TestRecommendNextGuess_EndToEnd(t *testing.T) {
 
 func TestRecommendNextGuess_ErrorOnNoGuesses(t *testing.T) {
 	_, err := NextGuessRecommendations(nil, "/does/not/matter")
-	if err != ErrNoGuesses {
-		t.Fatalf("expected %v, got %v", ErrNoGuesses, err)
+	if err != sdkutils.ErrNoGuesses {
+		t.Fatalf("expected %v, got %v", sdkutils.ErrNoGuesses, err)
 	}
 }

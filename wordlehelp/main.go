@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bryanesmith/wordle-help/utils"
+	"github.com/bryanesmith/wordle-help/go-sdk/recommendations"
 )
 
 func run(argv []string) int {
@@ -33,7 +33,7 @@ func run(argv []string) int {
 		return 0
 	}
 
-	rated, err := utils.NextGuessRecommendations(guesses, utils.DefaultDictionaryPath)
+	rated, err := recommendations.NextGuessRecommendations(guesses, recommendations.DefaultDictionaryPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1

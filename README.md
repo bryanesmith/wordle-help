@@ -109,11 +109,9 @@ Average guesses: 4.07
   - `main.go`: CLI entrypoint for `wordle_help`; parses flags, validates guesses, builds regex, and prints sorted candidates
 - `wordlesims/`
   - `main.go`: CLI entrypoint for `wordle_sims`; runs multiple simulations by repeatedly calling `bin/wordle_help`
-- `utils/`
-  - `validations.go`: Guess parsing and validation logic
-  - `regex.go`: Converts validated guesses into a single regular expression
-  - `recommendations.go`: End-to-end helper for recommending the next guess from raw guesses (`utils.NextGuessRecommendations`)
-  - `candidates.go`: Loads candidate words and scores/sorts them by expected remaining candidates
+- `go-sdk/`
+  - `recommendations/`: SDK entrypoint for recommendations (`go-sdk/recommendations.NextGuessRecommendations`)
+  - `utils/`: Candidate filtering/scoring logic, plus guess parsing/validation and regex construction utilities
 - `bin/`
   - `wordle_help`: executable that helps players decide their next guess while playing Wordle
   - `wordle_sims`: executable that simulates games of Wordle and reports aggregate results

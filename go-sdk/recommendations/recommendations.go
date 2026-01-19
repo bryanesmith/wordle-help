@@ -1,18 +1,22 @@
-package utils
+package recommendations
 
 import (
 	"regexp"
+
+	sdkutils "github.com/bryanesmith/wordle-help/go-sdk/utils"
 )
 
 const DefaultDictionaryPath = "/usr/share/dict/words"
 
+type RatedGuess = sdkutils.RatedGuess
+
 func NextGuessRecommendations(rawGuesses []string, dictPath string) ([]RatedGuess, error) {
-	parsed, err := ValidateGuesses(rawGuesses)
+	parsed, err := sdkutils.ValidateGuesses(rawGuesses)
 	if err != nil {
 		return nil, err
 	}
 
-	pattern, err := BuildRegex(parsed)
+	pattern, err := sdkutils.BuildRegex(parsed)
 	if err != nil {
 		return nil, err
 	}
@@ -22,11 +26,11 @@ func NextGuessRecommendations(rawGuesses []string, dictPath string) ([]RatedGues
 		return nil, err
 	}
 
-	cands, err := Candidates(re, parsed, dictPath)
+	cands, err := sdkutils.Candidates(re, parsed, dictPath)
 	if err != nil {
 		return nil, err
 	}
 
-	rated := SortCandidates(cands)
+	rated := sdkutils.SortCandidates(cands)
 	return rated, nil
 }
