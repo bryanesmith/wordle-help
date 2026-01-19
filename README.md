@@ -30,18 +30,15 @@ Examples:
 
 ## Building
 
-`./build.sh`
-
-Or:
-
-```
-go build -o bin/wordle_help ./wordlehelp
-go build -o bin/wordle_sims ./wordlesims
-```
+`make build`
 
 ## Running tests
 
-`go test ./...`
+`make test`
+
+## Cleaning
+
+`make clean`
 
 ## How results are sorted
 
@@ -69,7 +66,7 @@ After building, you can simulate one or more games using `bin/wordle_sims`. The 
 Provide exactly one starting word and optionally one or more answers:
 
 ```
-./build.sh
+make build
 
 # Simulate 50 games with slate as the starting word and random answers:
 bin/wordle_sims -s slate 
